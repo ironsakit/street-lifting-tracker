@@ -1,108 +1,63 @@
-\# Street Lifting Tracker
+# Street Lifting Tracker
 
+Tracker da riga di comando per i miei allenamenti di street lifting, nel formato ISF
+(muscle-up, pull-up, dip, squat). Permette di registrare peso e ripetizioni di ogni
+esercizio in ogni sessione, e di visualizzare progressi e massimali.
 
+Progetto di apprendimento, implementato in due versioni:
 
-Si tratta di un Tracker da riga di comando dei miei allenamenti di Street Lifting
+1. Con persistenza su file JSON
+2. Con persistenza su database SQLite
 
-(ovviamente i dati all'interno di 'crea\_database' sono casuali e non c'entrano nulla con i miei allenamenti veri).
+> Nota: i dati generati da `crea_database.py` sono casuali e non corrispondono
+> ai miei allenamenti reali.
 
-I dati sono registrati all'interno di un JSON oppure all'interno di una tabella in un database, nel formato ISF:
-
-muscle-up, pull-up, dip, squat). Permette di registrare peso e ripetizioni di ogni singolo esercizio in ogni
-
-mia sessione di allenamento e mostra progressi e massimali.
-
-
-
-Questo è un progetto di apprendimento: implementato in due versioni:
-
-1\) Con persistenza su JSON.
-
-2\) Con persistenza su DB SQLite.
-
-
-
-\## Utilizzo
-
-
+## Utilizzo
 
 Versione SQLite (consigliata):
 
 ```bash
-
-python tracker\_sqlite.py
-
+python tracker_sqlite.py
 ```
-
-
 
 Versione JSON:
 
 ```bash
-
-python tracker\_json.py
-
+python tracker_json.py
 ```
-
-
 
 Per generare un database di esempio con dati di prova:
 
 ```bash
-
-python crea\_database.py
-
+python crea_database.py
 ```
 
+## Perché due versioni
 
+La prima implementazione salvava i dati in un file JSON, caricando l'intero storico
+in memoria a ogni avvio. Funziona, ma ogni interrogazione sui dati (per esempio la
+progressione dello squat) richiedeva di scrivere a mano cicli e filtri in Python.
 
-\## Perché due versioni?
-
-
-
-La prima implementazione salvava i dati in un file JSON, caricando l'intero
-
-storico in memoria ad ogni avvio. Funziona, ma ogni interrogazione sui dati
-
-(come la "progressione sugli squat") richiedeva di scrivere a mano
-
-cicli e filtri in Python.
-
-
-
-La seconda versione usa SQLite. Il metodo `progresso()` è passato da 8
-
-righe di logica Python a una singola query:
-
-
+La seconda versione usa SQLite. Il metodo `progresso()` è passato da otto righe di
+logica Python a una singola query:
 
 ```sql
-
 SELECT data, peso, reps FROM sessioni WHERE lift = ? ORDER BY data
-
 ```
 
+Vantaggi concreti del passaggio:
 
+- Filtri e ordinamenti eseguiti dal database, senza caricare tutto in memoria
+- Aggregazioni (massimali, medie, volume) in una riga con `GROUP BY`
+- Nessuna gestione manuale di lettura, scrittura e file corrotti
+- Query parametrizzate con `?` contro le SQL injection
 
-Molto più ordinato, compatto ed efficiente.
+## Struttura dei dati
 
+Nella versione JSON i dati sono annidati: una sessione contiene i quattro lift.
+In SQLite sono appiattiti, ogni riga è un lift in una sessione identificato da data
+ed esercizio. Questo rende immediate le query per singolo lift.
 
-
-\## Struttura dei dati
-
-
-
-Nella versione JSON i dati sono annidati (una sessione contiene i quattro lift).
-
-In SQLite sono appiattiti: ogni riga è un lift in una sessione, identificato da
-
-data ed esercizio, questo rende immediate le query per singolo lift.
-
-
-
-\## Stack
-
-
+## Stack
 
 Python 3, SQLite (modulo `sqlite3` della libreria standard). Nessuna dipendenza esterna.
-
