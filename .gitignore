@@ -1,0 +1,8 @@
+*.db
+*.json
+
+.env
+
+__python__/
+*pyc
+venv/
