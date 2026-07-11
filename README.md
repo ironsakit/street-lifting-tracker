@@ -17,19 +17,25 @@ Progetto di apprendimento, implementato in due versioni:
 Versione SQLite (consigliata):
 
 ```bash
-python tracker_sqlite.py
+python TrackerDB.py
 ```
 
 Versione JSON:
 
 ```bash
-python tracker_json.py
+python TrackerJSON.py
 ```
 
 Per generare un database di esempio con dati di prova:
 
 ```bash
 python crea_database.py
+```
+
+Per avviare il server web di prova:
+
+```bash
+uvicorn main:app --reload
 ```
 
 ## Perché due versioni
@@ -52,6 +58,17 @@ Vantaggi concreti del passaggio:
 - Nessuna gestione manuale di lettura, scrittura e file corrotti
 - Query parametrizzate con `?` contro le SQL injection
 
+## API REST
+
+La versione SQLite è esposta anche come API web tramite FastAPI (`main.py`), con
+validazione dei dati in ingresso tramite Pydantic. Una volta avviato il server,
+la documentazione interattiva è disponibile su `http://127.0.0.1:8000/docs`.
+
+Endpoint principali:
+
+- `GET /massimali` — restituisce il massimale per ogni lift
+- `POST /sessioni` — registra un nuovo allenamento (con validazione)
+
 ## Struttura dei dati
 
 Nella versione JSON i dati sono annidati: una sessione contiene i quattro lift.
@@ -60,4 +77,5 @@ ed esercizio. Questo rende immediate le query per singolo lift.
 
 ## Stack
 
-Python 3, SQLite (modulo `sqlite3` della libreria standard). Nessuna dipendenza esterna.
+Python 3, SQLite (modulo `sqlite3` della libreria standard), FastAPI e Pydantic
+per l'API REST. Le dipendenze sono in `requirements.txt`.
